@@ -4,6 +4,8 @@ import NewRow from './NewRow';
 import SearchBox from './SearchBox';
 import axios from 'axios';
 import Config from './config';
+import Icon from 'react-fa';
+import Container from './components/Container';
 
 class PeopleApp extends Component {
   constructor(props) {
@@ -14,8 +16,12 @@ class PeopleApp extends Component {
         peoplelist: [],
         filterString: '',
         filteredData: [],
-        showAddForm: false
+        showAddForm: false,
+        showAddressBook: false,
+        showSearchForm: true,
      }
+
+     Container.setPageName('search');
 
      axios.get('/peoples', { baseURL: Config.baseUrl() })
       .then(function(response){
@@ -85,13 +91,57 @@ class PeopleApp extends Component {
 
   showAddForm() {
     this.setState({
-      showAddForm: true
+      showAddForm: true,
+      filterString: '',
     });
+
+    Container.setPageName('add-form');
+
+    this.closeAddressBook();
+    this.closeSearchForm();
   }
 
   closeAddForm() {
     this.setState({
-      showAddForm: false
+      showAddForm: false,
+      showSearchForm: true,
+    });
+  }
+
+  showAddressBook() {
+    this.setState({
+      showAddressBook: true,
+      filterString: '',
+    });
+
+    Container.setPageName('address-book');
+
+    this.closeAddForm();
+    this.closeSearchForm();
+    return false;
+  }
+
+  closeAddressBook() {
+    this.setState({
+      showAddressBook: false,
+      filterString: ''
+    });
+  }
+
+  showSearchForm() {
+    this.setState({
+      showSearchForm: true,
+    });
+
+    Container.setPageName('search');
+
+    this.closeAddForm();
+    this.closeAddressBook();
+  }
+
+  closeSearchForm() {
+    this.setState({
+      showSearchForm: false
     });
   }
 
@@ -112,25 +162,63 @@ class PeopleApp extends Component {
       _leftBlock = 'col-lg-16';
     }
 
+    var _hide_peoples = (this.state.showAddForm || (!this.state.showAddForm && this.state.showSearchForm && this.state.filterString.length === 0)) ? {display: 'none'} : null;
+    var _hide_search = this.state.showAddForm ? {display: 'none'} : null;
+
+    var _active_add_form = 'add-link' + (this.state.showAddForm ? " active" : "");
+    var _active_address_book = 'address-book-link' + (this.state.showAddressBook ? " active" : "");
+    var _active_search_form = 'search-link' + (this.state.showSearchForm ? " active" : "");
+
     return (
-      <div className="col-lg-24">
-        <div className="row">
-          <div className="col-lg-24">
-            <SearchBox filterString={this.state.filterString} doSearch={this.doSearch} block={this} />
+      <Container>
+        <header id="header" className="row">
+          <div className="container">
+            <div className="row header-links">
+              <div className="col-xs-8">
+                <div className="row">
+                  <a href="#add-people" onClick={this.showAddForm.bind(this)} className={"nav-item " + _active_add_form}>
+                    <Icon name="user-plus" />
+                  </a>
+                </div>
+              </div>
+
+              <div className="col-xs-8">
+                <div className="row">
+                  <a href="#list-people" onClick={this.showAddressBook.bind(this)} className={"nav-item " + _active_address_book}>
+                    <Icon name="address-book" />
+                  </a>
+                </div>
+              </div>
+
+              <div className="col-xs-8">
+                <div className="row">
+                  <a href="#search-people" onClick={this.showSearchForm.bind(this)} className={"nav-item " + _active_search_form}>
+                    <Icon name="search" />
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div className="search-wrapper" style={_hide_search}>
+               <SearchBox filterString={this.state.filterString} doSearch={this.doSearch} block={this} />
+            </div>
           </div>
 
+        </header>
+
+        <div className="row">
           <div className="col-lg-24">
             <div className="row">
-              <div className={_leftBlock}>
+              <div className={'people-list ' + _leftBlock} style={_hide_peoples}>
                 <PeopleList clist={_clist} onPeopleRemove={this.handlePeopleRemove} onPeopleEdits={this.handlePeopleEdit} block={this} />
               </div>
-              <div className="col-lg-8">
+              <div className="col-lg-24">
                 <NewRow show={this.state.showAddForm} onRowSubmit={this.handleNewRowSubmit} block={this} />
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </Container>
     );
   }
 };

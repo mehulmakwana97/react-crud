@@ -16,8 +16,8 @@ module.exports = {
     /*path: __dirname + '/public',
     filename: 'bundle.js'*/
     filename: 'bundle.js',
-    path: path.join(__dirname, './public'),
-    publicPath: '/public'
+    path: path.join(__dirname, './templates'),
+    publicPath: '/templates'
   },
   module: {
     loaders: [
@@ -30,28 +30,19 @@ module.exports = {
           presets: ["es2015", "stage-2", "react"]
         }
       },
+      { test: /\.css$/, loader: "style-loader!css-loader?importLoaders=1" },
       {
-        test: '/\.scss$/',
-        //include: './src/sass',
-        //loader: ExtractTextPlugin.extract('style-loader', sassLoaders.join('!'))/*ExtractTextPlugin.extract({
-          /*fallbackLoader: "style-loader",
-          loader: sassLoaders.join('!')
-        })*//*,
-        query: {
-          syntax: 'sass',
-          paths: [path.resolve(__dirname, './src')]
-        }*/
-        loaders: ['style-loader', 'css-loader', 'sass-loader']
-        //loader: ExtractTextPlugin.extract('style-loader!css-loader!sass-loader')
-      },
-      {
-        test: /(\.eot|\.woff2|\.woff|\.ttf|\.svg)/,
-        loader: 'file-loader'
+        test: /\.(eot|woff2|woff|ttf|svg)$/,
+        loader: 'file-loader?name=[name].[ext]'
+      },{
+        test: /\.(jpg|jpeg|gif|png)$/,
+        exclude: /node_modules/,
+        loader:'url-loader?name=images/[name].[ext]'
       },
     ]
   },
   resolve: {
-    extensions: ['.js', '.scss', '.jsx']
+    extensions: ['.js', '.css', '.jsx']
   }/*,
 
   plugins: [
